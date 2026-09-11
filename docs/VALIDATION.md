@@ -1,21 +1,23 @@
 # Validation report
 
-Task 05 integration was performed against the common base commit and all four task patches applied cleanly.
+Task 05 integration was performed against the common base and the Task 01-04 outputs were reconciled into one transport/state/UI pipeline.
 
-## Completed checks
+## Final checks
 
-- `git diff --check`: PASS
-- dependency-free strict TypeScript check for the transport/state/persistence/normalizer modules: PASS
-- integration smoke test (`Codex-style agent_message -> ChatEvent -> ChatStateEvent -> reducer`): PASS
-- browser-boundary smoke assertion that command output and absolute executable paths are not serialized: PASS
-- current upstream API shapes reviewed against `@openai/codex-sdk` 0.154.0 and TanStack Start async-generator server-function documentation
+Validation was rerun in GitHub Actions on Node.js 22 with a network-enabled npm environment.
 
-## Environment-blocked checks
+- dependency installation: PASS (`npm install --no-audit --no-fund`)
+- `npm run typecheck`: PASS
+- `npm test`: PASS — 9 test files, 34 tests
+- `npm run build`: PASS
+- V0 runtime policy remains read-only (`sandboxMode: read-only`, `approvalPolicy: never`, network disabled)
+- documented authentication path reuses the host Codex/ChatGPT login; `OPENAI_API_KEY` is not required for that subscription-auth path
 
-`npm install` could not reach the npm registry in the integration environment (`registry.npmjs.org` DNS resolution failed). Consequently the requested package-level commands fail before application compilation/testing:
+## Integration defects fixed during final validation
 
-- `npm run typecheck`: blocked because `@types/node` and `vite/client` are not installed
-- `npm test`: blocked because `vitest` is not installed
-- `npm run build`: blocked because `vite` is not installed
+1. Removed deprecated TypeScript `baseUrl`; the `~/*` path mapping remains relative to `tsconfig.json`.
+2. Moved the client-importable TanStack `createServerFn` definition from `chat.server.ts` to `chat.ts`. This allows TanStack Start to generate the client RPC bridge while keeping the actual Codex runtime in `*.server.ts` modules.
+3. Migrated `createServerFn().inputValidator()` to `createServerFn().validator()`.
+4. Fixed CI so repositories without a committed npm lockfile do not fail during `setup-node` cache initialization.
 
-Run `npm install`, then the three commands above in a network-enabled environment before treating the demo as production-ready.
+The successful CI run validates installation, type checking, the full unit/integration test suite, and the production bundle.
