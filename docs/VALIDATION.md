@@ -1,5 +1,7 @@
 # Validation report
 
+> **文档定位：某次集成验证快照。** 这里记录当时实际跑过的检查与修复，不应被视为当前所有可靠性结论。关于“测试通过仍不能证明什么”、fake app-server、correlation、interrupt、process cleanup 与安全边界，请阅读 [`docs/notes/04-testing-reliability-security.md`](./notes/04-testing-reliability-security.md)。
+
 Task 05 integration was performed against the common base and the Task 01-04 outputs were reconciled into one transport/state/UI pipeline.
 
 ## Final checks
