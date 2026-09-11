@@ -1,5 +1,7 @@
 # Five-task development plan
 
+> **文档定位：开发拆分与协作记录。** 本文描述当时如何把实现拆成五个任务，不是技术知识笔记。长期学习请从 [`docs/notes/README.md`](./notes/README.md) 开始；该索引按“架构 → Runtime → Web 状态 → 可靠性 → 端到端”组织。
+
 The repository is intentionally split into four parallel implementation tracks plus one integration track. Parallel tasks should minimize overlapping file ownership.
 
 | Task | Scope | Primary file ownership | Deliverable |
