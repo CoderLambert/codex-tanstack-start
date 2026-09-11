@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { streamChat } from '../../server-functions/chat.server'
+import { streamChat } from '../../server-functions/chat'
 import { toChatStateEvent } from './chat-event.adapter'
 import {
   chatReducer,
