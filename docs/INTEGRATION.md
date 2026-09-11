@@ -1,5 +1,7 @@
 # Task 05 integration notes
 
+> **文档定位：集成实施记录。** 本文记录 Task 05 当时如何收敛模块边界，不作为长期学习入口。关于 Runtime/App Server 的系统知识请阅读 [`docs/notes/02-codex-app-server-streaming.md`](./notes/02-codex-app-server-streaming.md)；关于 TanStack/React 状态模型请阅读 [`docs/notes/03-tanstack-streaming-state.md`](./notes/03-tanstack-streaming-state.md)；完整链路请阅读 [`docs/notes/05-end-to-end-review.md`](./notes/05-end-to-end-review.md)。
+
 ## Resolved module boundaries
 
 ### Task 01 -> Task 02
