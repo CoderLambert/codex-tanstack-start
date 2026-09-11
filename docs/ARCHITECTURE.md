@@ -1,5 +1,7 @@
 # Architecture
 
+> **文档定位：V0 架构摘要 / 项目记录。** 本文保留用于快速查看当前架构边界，不承担系统教学职责。完整的架构心智模型、设计理由、替代方案、失败模式与复习内容请阅读 [`docs/notes/01-system-architecture.md`](./notes/01-system-architecture.md)；端到端串联请阅读 [`docs/notes/05-end-to-end-review.md`](./notes/05-end-to-end-review.md)。
+
 ## Boundary
 
 The Codex app-server is server-only. Browser code must never import the SDK/protocol client or read local Codex authentication files.
