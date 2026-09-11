@@ -90,6 +90,8 @@ If `CODEX_WORKSPACE_ROOT` is omitted, V0 uses the server process working directo
 Every Codex thread is created/resumed with:
 
 ```text
+model: luna
+modelReasoningEffort: high
 sandboxMode: read-only
 approvalPolicy: never
 networkAccessEnabled: false
@@ -121,7 +123,7 @@ Transient activities, errors, credentials, SDK events, and command output are no
 
 - V0 has one active browser conversation and one configured workspace root.
 - Assistant text is emitted on completed Codex message items; this is structured event streaming, not token-by-token text rendering.
-- There is no UI for selecting workspaces, models, reasoning effort, or permissions.
+- The runtime is fixed to the `luna` model with `high` reasoning effort; there is no UI for changing the model, reasoning effort, workspace, or permissions.
 - There is no write-mode approval flow; the runtime is intentionally read-only.
 - New Chat ignores any remaining client-side events from the previous turn, but does not currently propagate an explicit cancellation signal through the TanStack Start RPC to terminate the underlying Codex process immediately.
 - Raw reasoning text, command stdout/stderr, MCP arguments/results, and detailed server exceptions are intentionally hidden from the browser.

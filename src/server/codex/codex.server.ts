@@ -20,7 +20,9 @@ export type CodexRuntimeOptions = {
   workspaceRoot?: string;
 };
 
-const READ_ONLY_THREAD_OPTIONS = {
+const LUNA_HIGH_THREAD_OPTIONS = {
+  model: "luna",
+  modelReasoningEffort: "high",
   sandboxMode: "read-only",
   approvalPolicy: "never",
   networkAccessEnabled: false,
@@ -58,7 +60,7 @@ export class CodexRuntime {
     });
 
     const threadOptions: ThreadOptionsLike = {
-      ...READ_ONLY_THREAD_OPTIONS,
+      ...LUNA_HIGH_THREAD_OPTIONS,
       workingDirectory,
     };
 

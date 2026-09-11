@@ -1,6 +1,16 @@
 import { CodexRuntimeError } from "./codex.errors";
 
 export type ThreadOptionsLike = {
+  model: string;
+  modelReasoningEffort:
+    | "minimal"
+    | "low"
+    | "medium"
+    | "high"
+    | "xhigh"
+    | "max"
+    | "ultra"
+    | "persistent";
   sandboxMode: "read-only";
   workingDirectory: string;
   approvalPolicy: "never";

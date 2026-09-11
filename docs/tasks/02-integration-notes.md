@@ -8,7 +8,7 @@ Task 02 owns the browser-safe event boundary:
 - `src/server-functions/codex-event.types.ts` — minimal structural mirror of Codex SDK events used only at the server boundary.
 - `src/server-functions/codex-event-normalizer.ts` — Codex event -> `ChatEvent[]` normalization.
 - `src/server-functions/chat-stream.ts` — async iterable bridge independent of TanStack/Codex runtime details.
-- `src/server-functions/chat.server.ts` — TanStack Start POST server function returning an async generator.
+- `src/server-functions/chat.ts` — TanStack Start POST server function returning an async generator.
 - `src/server-functions/chat.runtime.server.ts` — explicit Task 01/05 integration seam.
 
 ## Task 05 integration assumption

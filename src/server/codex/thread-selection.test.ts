@@ -21,6 +21,8 @@ function fakeThread(id: string | null): CodexThreadLike {
 }
 
 const options: ThreadOptionsLike = {
+  model: "luna",
+  modelReasoningEffort: "high",
   sandboxMode: "read-only",
   approvalPolicy: "never",
   networkAccessEnabled: false,

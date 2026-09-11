@@ -11,6 +11,7 @@ export const Route = createRootRoute({
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
+  notFoundComponent: NotFoundComponent,
   component: RootComponent,
 })
 
@@ -33,5 +34,14 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function NotFoundComponent() {
+  return (
+    <main>
+      <h1>Page not found</h1>
+      <p>The page you requested does not exist.</p>
+    </main>
   )
 }

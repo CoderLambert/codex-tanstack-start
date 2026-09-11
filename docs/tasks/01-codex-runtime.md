@@ -6,6 +6,7 @@ Implement the server-only Codex runtime wrapper.
 - Instantiate `Codex` only in server-only code.
 - Support `startThread()` and `resumeThread(threadId)`.
 - Expose a streaming turn method based on `runStreamed()`.
+- Use the `luna` model with `high` reasoning effort for every thread.
 - Use a read-only sandbox/workspace posture for V0.
 - Validate/resolve workspace path server-side.
 - Return useful typed errors when Codex authentication or runtime startup fails.
