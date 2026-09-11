@@ -1,13 +1,14 @@
 # Codex + TanStack Start Demo
 
-Minimal proof of concept for using `@openai/codex-sdk` as a **local personal-agent runtime** behind a TanStack Start web UI.
+Minimal proof of concept for using the local Codex app-server as a **personal-agent runtime** behind a TanStack Start web UI.
 
-The browser never receives Codex credentials or raw SDK objects. TanStack Start runs the Codex SDK on the server side, normalizes structured events into an application-owned `ChatEvent` contract, and streams those events back to the React UI.
+The browser never receives Codex credentials or raw protocol objects. TanStack Start runs the Codex app-server on the server side, normalizes its structured notifications into an application-owned `ChatEvent` contract, and streams those events back to the React UI.
 
 ## What this demo validates
 
 - TanStack Start server functions can stream an async generator to the browser.
-- `@openai/codex-sdk` can start and resume Codex threads.
+- Codex app-server can start and resume Codex threads.
+- Codex app-server `item/agentMessage/delta` notifications reach the UI as real assistant deltas.
 - The server-side SDK can reuse the Codex/ChatGPT authentication already available on the host.
 - The browser persists only `{ threadId, messages }` in versioned localStorage.
 - Agent activity is rendered without exposing raw reasoning, command output, MCP payloads, local paths, or authentication material.
@@ -26,13 +27,13 @@ TanStack Start Server Function
 ChatEvent normalizer
        |
        v
-CodexRuntime (server only)
+CodexRuntime interface (server only)
        |
        v
-@openai/codex-sdk
+CodexAppServerRuntime
        |
        v
-Codex CLI runtime + local ChatGPT/Codex authentication
+codex app-server + local ChatGPT/Codex authentication
 ```
 
 Client state follows one path:
@@ -87,14 +88,14 @@ If `CODEX_WORKSPACE_ROOT` is omitted, V0 uses the server process working directo
 
 ## Safety baseline
 
-Every Codex thread is created/resumed with:
+Every Codex app-server thread/turn is created or resumed with:
 
 ```text
 model: luna
-modelReasoningEffort: high
-sandboxMode: read-only
+effort: high
+sandbox: read-only
+sandboxPolicy.networkAccess: false
 approvalPolicy: never
-networkAccessEnabled: false
 ```
 
 This demo therefore targets repository inspection, explanation, reasoning, and other read-only workflows. File mutation is deliberately not enabled.
@@ -122,7 +123,7 @@ Transient activities, errors, credentials, SDK events, and command output are no
 ## Known limitations
 
 - V0 has one active browser conversation and one configured workspace root.
-- Assistant text is emitted on completed Codex message items; this is structured event streaming, not token-by-token text rendering.
+- Assistant text is emitted from app-server deltas while the turn is running, then calibrated with the completed item snapshot.
 - The runtime is fixed to the `luna` model with `high` reasoning effort; there is no UI for changing the model, reasoning effort, workspace, or permissions.
 - There is no write-mode approval flow; the runtime is intentionally read-only.
 - New Chat ignores any remaining client-side events from the previous turn, but does not currently propagate an explicit cancellation signal through the TanStack Start RPC to terminate the underlying Codex process immediately.

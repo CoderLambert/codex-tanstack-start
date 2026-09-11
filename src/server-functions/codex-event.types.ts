@@ -1,9 +1,8 @@
 /**
- * Deliberately small structural mirror of the Codex SDK event contract.
+ * Deliberately small structural mirror of the server-side Codex event contract.
  *
- * Task 02 does not import `@openai/codex-sdk` into browser-reachable modules.
- * Task 01/05 can pass the SDK's `ThreadEvent` values directly because these
- * shapes are structurally compatible.
+ * Browser-reachable modules never import Codex SDK or app-server protocol types.
+ * The runtime adapter converts server notifications into these shapes first.
  */
 export type CodexUsage = {
   input_tokens: number
@@ -72,4 +71,5 @@ export type CodexThreadEvent =
   | { type: 'item.started'; item: CodexThreadItem }
   | { type: 'item.updated'; item: CodexThreadItem }
   | { type: 'item.completed'; item: CodexThreadItem }
+  | { type: 'item.agent_message.delta'; item_id: string; delta: string }
   | { type: 'error'; message: string }

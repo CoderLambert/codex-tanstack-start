@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeCodexEvent, sanitizeErrorMessage } from '../codex-event-normalizer'
+import {
+  createCodexEventNormalizer,
+  normalizeCodexEvent,
+  sanitizeErrorMessage,
+} from '../codex-event-normalizer'
 
 describe('normalizeCodexEvent', () => {
   it('maps thread ids and usage without exposing SDK field names', () => {
@@ -31,13 +35,37 @@ describe('normalizeCodexEvent', () => {
     ])
   })
 
-  it('emits assistant text only when the item completes', () => {
-    const item = { id: 'm1', type: 'agent_message' as const, text: 'Hello' }
+  it('converts app-server deltas into assistant deltas', () => {
+    expect(normalizeCodexEvent({
+      type: 'item.agent_message.delta',
+      item_id: 'm1',
+      delta: 'Hello',
+    })).toEqual([{ type: 'assistant.delta', id: 'm1', delta: 'Hello' }])
+  })
 
-    expect(normalizeCodexEvent({ type: 'item.updated', item })).toEqual([])
-    expect(normalizeCodexEvent({ type: 'item.completed', item })).toEqual([
-      { type: 'assistant.message', id: 'm1', text: 'Hello' },
+  it('converts cumulative snapshots into safe deltas and final correction', () => {
+    const normalizer = createCodexEventNormalizer()
+    const started = { id: 'm1', type: 'agent_message' as const, text: '' }
+
+    expect(normalizer.normalize({ type: 'item.started', item: started })).toEqual([
+      { type: 'assistant.started', id: 'm1' },
     ])
+    expect(normalizer.normalize({
+      type: 'item.updated',
+      item: { ...started, text: 'React' },
+    })).toEqual([{ type: 'assistant.delta', id: 'm1', delta: 'React' }])
+    expect(normalizer.normalize({
+      type: 'item.updated',
+      item: { ...started, text: 'React 是' },
+    })).toEqual([{ type: 'assistant.delta', id: 'm1', delta: ' 是' }])
+    expect(normalizer.normalize({
+      type: 'item.updated',
+      item: { ...started, text: 'A corrected answer' },
+    })).toEqual([{ type: 'assistant.completed', id: 'm1', text: 'A corrected answer' }])
+    expect(normalizer.normalize({
+      type: 'item.completed',
+      item: { ...started, text: 'A corrected answer' },
+    })).toEqual([{ type: 'assistant.completed', id: 'm1', text: 'A corrected answer' }])
   })
 
   it('does not expose reasoning text, command output, or MCP payloads', () => {

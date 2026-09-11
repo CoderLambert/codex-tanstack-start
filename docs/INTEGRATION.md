@@ -13,7 +13,7 @@ getCodexRuntime().streamTurn({
 })
 ```
 
-The SDK `ThreadEvent` is converted at the seam to Task 02's structural server-only event type. Browser-reachable modules do not import `@openai/codex-sdk`.
+Codex app-server notifications are converted at the seam to Task 02's structural server-only event type. Browser-reachable modules do not import `@openai/codex-sdk` or app-server protocol objects.
 
 ### Task 02 -> Task 04
 

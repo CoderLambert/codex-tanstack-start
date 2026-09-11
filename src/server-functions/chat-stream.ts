@@ -1,6 +1,6 @@
 import type { ChatEvent, ChatRequest } from '../features/chat/chat.types'
 import type { CodexThreadEvent } from './codex-event.types'
-import { normalizeCodexEvent } from './codex-event-normalizer'
+import { createCodexEventNormalizer } from './codex-event-normalizer'
 
 export type CodexTurnStreamFactory = (
   request: ChatRequest,
@@ -12,9 +12,10 @@ export async function* streamNormalizedChatEvents(
   createCodexTurnStream: CodexTurnStreamFactory,
 ): AsyncGenerator<ChatEvent> {
   const source = await createCodexTurnStream(request)
+  const normalizer = createCodexEventNormalizer()
 
   for await (const codexEvent of source) {
-    for (const chatEvent of normalizeCodexEvent(codexEvent)) {
+    for (const chatEvent of normalizer.normalize(codexEvent)) {
       yield chatEvent
     }
   }

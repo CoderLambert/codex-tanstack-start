@@ -39,7 +39,9 @@ export interface ChatState extends PersistedConversation {
  */
 export type ChatStateEvent =
   | { type: 'thread.started'; threadId: string }
-  | { type: 'assistant.message'; message: ChatMessage }
+  | { type: 'assistant.started'; id: string; createdAt: number }
+  | { type: 'assistant.delta'; id: string; delta: string }
+  | { type: 'assistant.completed'; id: string; text: string }
   | { type: 'activity.started'; activity: AgentActivity }
   | {
       type: 'activity.updated'
@@ -99,11 +101,61 @@ export function applyChatEvent(state: ChatState, event: ChatStateEvent): ChatSta
         threadId: event.threadId,
       }
 
-    case 'assistant.message':
+    case 'assistant.started':
+      if (state.messages.some((message) => message.id === event.id)) {
+        return state
+      }
+
       return {
         ...state,
-        messages: upsertMessage(state.messages, event.message),
+        messages: [
+          ...state.messages,
+          {
+            id: event.id,
+            role: 'assistant',
+            content: '',
+            createdAt: event.createdAt,
+          },
+        ],
       }
+
+    case 'assistant.delta': {
+      const index = state.messages.findIndex((message) => message.id === event.id)
+      if (index === -1) {
+        return {
+          ...state,
+          messages: [
+            ...state.messages,
+            {
+              id: event.id,
+              role: 'assistant',
+              content: event.delta,
+              createdAt: Date.now(),
+            },
+          ],
+        }
+      }
+
+      const message = state.messages[index]
+      if (!message || message.role !== 'assistant') return state
+
+      const messages = [...state.messages]
+      messages[index] = { ...message, content: message.content + event.delta }
+      return { ...state, messages }
+    }
+
+    case 'assistant.completed': {
+      const existing = state.messages.find((message) => message.id === event.id)
+      return {
+        ...state,
+        messages: upsertMessage(state.messages, {
+          id: event.id,
+          role: 'assistant',
+          content: event.text,
+          createdAt: existing?.createdAt ?? Date.now(),
+        }),
+      }
+    }
 
     case 'activity.started':
       return {

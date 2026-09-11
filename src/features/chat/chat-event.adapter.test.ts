@@ -1,20 +1,28 @@
 import { describe, expect, it } from 'vitest'
 import { toChatStateEvent } from './chat-event.adapter'
 
-it('converts an assistant transport event into a persisted reducer message', () => {
+it('converts assistant lifecycle events into reducer events', () => {
   expect(
     toChatStateEvent(
-      { type: 'assistant.message', id: 'm1', text: 'Hello' },
+      { type: 'assistant.started', id: 'm1' },
       123,
     ),
   ).toEqual({
-    type: 'assistant.message',
-    message: {
-      id: 'm1',
-      role: 'assistant',
-      content: 'Hello',
-      createdAt: 123,
-    },
+    type: 'assistant.started',
+    id: 'm1',
+    createdAt: 123,
+  })
+
+  expect(toChatStateEvent({ type: 'assistant.delta', id: 'm1', delta: 'Hello' }, 123)).toEqual({
+    type: 'assistant.delta',
+    id: 'm1',
+    delta: 'Hello',
+  })
+
+  expect(toChatStateEvent({ type: 'assistant.completed', id: 'm1', text: 'Hello' }, 123)).toEqual({
+    type: 'assistant.completed',
+    id: 'm1',
+    text: 'Hello',
   })
 })
 

@@ -10,16 +10,18 @@ export function toChatStateEvent(
     case 'thread.started':
       return event
 
-    case 'assistant.message':
+    case 'assistant.started':
       return {
-        type: 'assistant.message',
-        message: {
-          id: event.id,
-          role: 'assistant',
-          content: event.text,
-          createdAt: receivedAt,
-        },
+        type: 'assistant.started',
+        id: event.id,
+        createdAt: receivedAt,
       }
+
+    case 'assistant.delta':
+      return event
+
+    case 'assistant.completed':
+      return event
 
     case 'activity.started':
     case 'activity.updated':

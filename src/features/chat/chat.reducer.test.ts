@@ -96,18 +96,58 @@ describe('applyChatEvent', () => {
     expect(next.messages).toEqual([userMessage])
   })
 
-  it('upserts assistant messages by id', () => {
-    const first = applyChatEvent(initialChatState, {
-      type: 'assistant.message',
-      message: assistantMessage,
+  it('creates one assistant message, appends deltas, and calibrates on completion', () => {
+    const running = chatReducer(initialChatState, { type: 'turn.started' })
+    const started = applyChatEvent(running, {
+      type: 'assistant.started',
+      id: assistantMessage.id,
+      createdAt: assistantMessage.createdAt,
     })
-    const updated = applyChatEvent(first, {
-      type: 'assistant.message',
-      message: { ...assistantMessage, content: 'Hi again' },
+    const duplicateStarted = applyChatEvent(started, {
+      type: 'assistant.started',
+      id: assistantMessage.id,
+      createdAt: 99,
+    })
+    const firstDelta = applyChatEvent(duplicateStarted, {
+      type: 'assistant.delta',
+      id: assistantMessage.id,
+      delta: 'Hi',
+    })
+    const secondDelta = applyChatEvent(firstDelta, {
+      type: 'assistant.delta',
+      id: assistantMessage.id,
+      delta: ' there',
+    })
+    const completed = applyChatEvent(secondDelta, {
+      type: 'assistant.completed',
+      id: assistantMessage.id,
+      text: 'Hi again',
     })
 
-    expect(updated.messages).toHaveLength(1)
-    expect(updated.messages[0]?.content).toBe('Hi again')
+    expect(duplicateStarted.messages).toHaveLength(1)
+    expect(secondDelta.messages[0]?.content).toBe('Hi there')
+    expect(completed.messages[0]).toEqual({ ...assistantMessage, content: 'Hi again' })
+    expect(completed.status).toBe('running')
+  })
+
+  it('does not mix deltas from different assistant ids', () => {
+    const first = applyChatEvent(initialChatState, {
+      type: 'assistant.started',
+      id: 'a1',
+      createdAt: 1,
+    })
+    const second = applyChatEvent(first, {
+      type: 'assistant.started',
+      id: 'a2',
+      createdAt: 2,
+    })
+    const updated = applyChatEvent(second, {
+      type: 'assistant.delta',
+      id: 'a2',
+      delta: 'second',
+    })
+
+    expect(updated.messages.map((message) => message.content)).toEqual(['', 'second'])
   })
 
   it('tracks activity lifecycle deterministically', () => {

@@ -8,7 +8,7 @@ import type {
 import type { CodexThreadEvent, CodexThreadItem, CodexUsage } from './codex-event.types'
 
 /**
- * Converts Codex SDK events into the stable, browser-safe application contract.
+ * Converts Codex runtime events into the stable, browser-safe application contract.
  *
  * Security boundary:
  * - raw SDK objects are never forwarded
@@ -18,6 +18,25 @@ import type { CodexThreadEvent, CodexThreadItem, CodexUsage } from './codex-even
  * - only an opaque thread identifier required for resume is exposed
  */
 export function normalizeCodexEvent(event: CodexThreadEvent): ChatEvent[] {
+  return createCodexEventNormalizer().normalize(event)
+}
+
+export function createCodexEventNormalizer(): {
+  normalize: (event: CodexThreadEvent) => ChatEvent[]
+} {
+  const assistantSnapshots = new Map<string, string>()
+
+  return {
+    normalize(event) {
+      return normalizeCodexEventWithSnapshots(event, assistantSnapshots)
+    },
+  }
+}
+
+function normalizeCodexEventWithSnapshots(
+  event: CodexThreadEvent,
+  assistantSnapshots: Map<string, string>,
+): ChatEvent[] {
   switch (event.type) {
     case 'thread.started':
       return [{ type: 'thread.started', threadId: event.thread_id }]
@@ -34,21 +53,49 @@ export function normalizeCodexEvent(event: CodexThreadEvent): ChatEvent[] {
     case 'error':
       return [{ type: 'error', message: sanitizeErrorMessage(event.message) }]
 
+    case 'item.agent_message.delta':
+      if (!event.delta) return []
+      return [{ type: 'assistant.delta', id: event.item_id, delta: event.delta }]
+
     case 'item.started':
     case 'item.updated':
     case 'item.completed':
-      return normalizeItemEvent(event.type, event.item)
+      return normalizeItemEvent(event.type, event.item, assistantSnapshots)
   }
 }
 
 function normalizeItemEvent(
   eventType: 'item.started' | 'item.updated' | 'item.completed',
   item: CodexThreadItem,
+  assistantSnapshots: Map<string, string>,
 ): ChatEvent[] {
   if (item.type === 'agent_message') {
-    return eventType === 'item.completed'
-      ? [{ type: 'assistant.message', id: item.id, text: item.text }]
-      : []
+    if (eventType === 'item.started') {
+      const previous = assistantSnapshots.get(item.id)
+      assistantSnapshots.set(item.id, item.text)
+      const events: ChatEvent[] = [{ type: 'assistant.started', id: item.id }]
+      if (!previous && item.text) {
+        events.push({ type: 'assistant.delta', id: item.id, delta: item.text })
+      }
+      return events
+    }
+
+    if (eventType === 'item.updated') {
+      const previous = assistantSnapshots.get(item.id) ?? ''
+      assistantSnapshots.set(item.id, item.text)
+      if (item.text === previous) return []
+      if (item.text.startsWith(previous)) {
+        const delta = item.text.slice(previous.length)
+        return delta ? [{ type: 'assistant.delta', id: item.id, delta }] : []
+      }
+
+      // A non-prefix snapshot cannot be represented as an append-only delta.
+      // Use a full correction event so the reducer never displays duplicated text.
+      return [{ type: 'assistant.completed', id: item.id, text: item.text }]
+    }
+
+    assistantSnapshots.delete(item.id)
+    return [{ type: 'assistant.completed', id: item.id, text: item.text }]
   }
 
   const normalizedActivity = toActivity(item)

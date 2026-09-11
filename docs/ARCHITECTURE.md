@@ -2,17 +2,19 @@
 
 ## Boundary
 
-`@openai/codex-sdk` is server-only. Browser code must never import the SDK or read local Codex authentication files.
+The Codex app-server is server-only. Browser code must never import the SDK/protocol client or read local Codex authentication files.
 
 ## Runtime flow
 
 ```text
 POST user turn
   -> chat server function
-  -> CodexService
-  -> startThread() or resumeThread(threadId)
-  -> runStreamed()
-  -> normalize Codex ThreadEvent to app ChatEvent
+  -> CodexRuntime interface
+  -> CodexAppServerRuntime
+  -> thread/start or thread/resume
+  -> turn/start
+  -> item/agentMessage/delta notifications
+  -> normalize app-server notifications to app ChatEvent
   -> async stream back to browser
   -> reducer updates message/activity state
 ```
@@ -24,7 +26,9 @@ The UI depends on an application-owned event contract rather than Codex SDK even
 Initial event families:
 
 - `thread.started`
-- `assistant.message`
+- `assistant.started`
+- `assistant.delta`
+- `assistant.completed`
 - `activity.started`
 - `activity.updated`
 - `activity.completed`

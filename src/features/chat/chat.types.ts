@@ -35,7 +35,16 @@ export type ChatEvent =
       threadId: string
     }
   | {
-      type: 'assistant.message'
+      type: 'assistant.started'
+      id: string
+    }
+  | {
+      type: 'assistant.delta'
+      id: string
+      delta: string
+    }
+  | {
+      type: 'assistant.completed'
       id: string
       text: string
     }

@@ -21,6 +21,13 @@ export interface ChatController {
   newChat: () => void
 }
 
+export function isCurrentChatGeneration(
+  streamGeneration: number,
+  currentGeneration: number,
+): boolean {
+  return streamGeneration === currentGeneration
+}
+
 export function useChatController(): ChatController {
   const [state, dispatch] = useReducer(chatReducer, initialChatState)
   const [restored, setRestored] = useState(false)
@@ -69,14 +76,14 @@ export function useChatController(): ChatController {
       })
 
       for await (const event of events) {
-        if (generation !== generationRef.current) return
+        if (!isCurrentChatGeneration(generation, generationRef.current)) return
         dispatch({
           type: 'event.received',
           event: toChatStateEvent(event, Date.now()),
         })
       }
     } catch (error) {
-      if (generation !== generationRef.current) return
+      if (!isCurrentChatGeneration(generation, generationRef.current)) return
       dispatch({
         type: 'event.received',
         event: {

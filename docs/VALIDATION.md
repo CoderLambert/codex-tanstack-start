@@ -8,9 +8,10 @@ Validation was rerun in GitHub Actions on Node.js 22 with a network-enabled npm 
 
 - dependency installation: PASS (`npm install --no-audit --no-fund`)
 - `npm run typecheck`: PASS
-- `npm test`: PASS — 9 test files, 34 tests
+- `npm test`: PASS — 10 test files, 37 tests
 - `npm run build`: PASS
 - V0 runtime policy remains read-only (`sandboxMode: read-only`, `approvalPolicy: never`, network disabled)
+- app-server smoke verification: PASS (`item/started` -> multiple `item/agentMessage/delta` -> `item/completed` -> `turn/completed`)
 - documented authentication path reuses the host Codex/ChatGPT login; `OPENAI_API_KEY` is not required for that subscription-auth path
 
 ## Integration defects fixed during final validation

@@ -21,7 +21,7 @@ Task 04 exports deterministic client-state primitives from `src/features/chat/ch
 - `ChatStateEvent` + `applyChatEvent(state, event)`
 - `initialChatState`
 
-Task 05 should adapt Task 02's transport `ChatEvent` into `ChatStateEvent`, then dispatch it as `{ type: 'event.received', event }`. The state layer intentionally has no dependency on `@openai/codex-sdk`.
+Task 05 should adapt Task 02's transport `ChatEvent` into `ChatStateEvent`, then dispatch it as `{ type: 'event.received', event }`. The state layer intentionally has no dependency on Codex SDK or app-server protocol details.
 
 Persistence helpers live in `src/features/chat/chat.storage.ts`:
 

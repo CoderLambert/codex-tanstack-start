@@ -8,6 +8,11 @@ describe('streamNormalizedChatEvents', () => {
       { type: 'thread.started', thread_id: 'thread-1' },
       { type: 'turn.started' },
       {
+        type: 'item.started',
+        item: { id: 'm1', type: 'agent_message', text: '' },
+      },
+      { type: 'item.agent_message.delta', item_id: 'm1', delta: 'Done' },
+      {
         type: 'item.completed',
         item: { id: 'm1', type: 'agent_message', text: 'Done' },
       },
@@ -37,7 +42,9 @@ describe('streamNormalizedChatEvents', () => {
 
     expect(output.map((event) => event.type)).toEqual([
       'thread.started',
-      'assistant.message',
+      'assistant.started',
+      'assistant.delta',
+      'assistant.completed',
       'turn.completed',
     ])
   })

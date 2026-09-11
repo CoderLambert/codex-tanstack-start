@@ -16,8 +16,8 @@ export async function* streamCodexTurn(
     prompt: request.message,
     threadId: request.threadId,
   })) {
-    // Task 02 intentionally owns a small structural mirror of the SDK event
-    // contract so browser-reachable modules never import @openai/codex-sdk.
+    // Task 02 intentionally owns a small structural mirror of the server event
+    // contract so browser-reachable modules never import Codex runtime details.
     yield event as unknown as CodexThreadEvent
   }
 }

@@ -3,9 +3,10 @@
 Implement the server-only Codex runtime wrapper.
 
 ## Requirements
-- Instantiate `Codex` only in server-only code.
-- Support `startThread()` and `resumeThread(threadId)`.
-- Expose a streaming turn method based on `runStreamed()`.
+- Keep the Codex app-server process and protocol client in server-only code.
+- Support `thread/start` and `thread/resume(threadId)`.
+- Expose a streaming turn method based on `turn/start` notifications.
+- Forward `item/agentMessage/delta` events without exposing raw app-server messages.
 - Use the `luna` model with `high` reasoning effort for every thread.
 - Use a read-only sandbox/workspace posture for V0.
 - Validate/resolve workspace path server-side.
